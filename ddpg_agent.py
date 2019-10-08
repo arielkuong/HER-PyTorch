@@ -95,6 +95,7 @@ class ddpg_agent:
                             action = self._action_postpro(pi)
                         # feed the actions into the environment
                         observation_new, _, _, info = self.env.step(action)
+                        #self.env.render()
                         obs_new = observation_new['observation']
                         ag_new = observation_new['achieved_goal']
                         # append rollouts
@@ -146,6 +147,8 @@ class ddpg_agent:
                 #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_best.pt')
 
             print('[{}] epoch: {}, eval success rate: {:.3f}, best success rate: {:.3f}'.format(datetime.now(), epoch, success_rate, best_success_rate))
+
+            if success_rate > 0.9: break
 
 
     # pre_process the inputs

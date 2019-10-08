@@ -1,5 +1,6 @@
 import numpy as np
 import gym
+import gym_customized
 import os, sys
 from arguments import get_args
 from mpi4py import MPI
@@ -52,10 +53,16 @@ def get_env_params(env):
             }
     params['max_timesteps'] = env._max_episode_steps
     #params['reward_type'] = env._kwargs.reward_type
+    print('Env observation dimension: {}'.format(params['obs']))
+    print('Env goal dimension: {}'.format(params['goal']))
+    print('Env action dimension: {}'.format(params['action']))
+    print('Env max action value: {}'.format(params['action_max']))
+    print('Env max timestep value: {}'.format(params['max_timesteps']))
     return params
 
 def launch(args):
     # create the ddpg_agent
+    #env = gym.make(args.env_name)
     env = gym.make(args.env_name)
     # set random seeds for reproduce
     #env.seed(args.seed + MPI.COMM_WORLD.Get_rank())

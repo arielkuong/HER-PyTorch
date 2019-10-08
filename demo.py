@@ -2,6 +2,7 @@ import torch
 from models import actor
 from arguments import get_args
 import gym
+import gym_customized
 import numpy as np
 
 # process the inputs
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     o_mean, o_std, g_mean, g_std, actor_model, critic_model = torch.load(model_path, map_location=lambda storage, loc: storage)
     #o_mean, o_std, g_mean, g_std, actor_model = torch.load(model_path, map_location=lambda storage, loc: storage)
     # create the environment
-    env = gym.make(args.env_name)
+    env = gym_customized.make(args.env_name)
     # get the env param
     observation = env.reset()
     # get the environment params
@@ -48,4 +49,9 @@ if __name__ == '__main__':
             # put actions into the environment
             observation_new, reward, _, info = env.step(action)
             obs = observation_new['observation']
+            #print('reward: {}'.format(reward))
+
+        #if env.is_on_palm() == False:
+        #    print('Object dropped!!!')
+
         print('the episode is: {}, is success: {}'.format(i, info['is_success']))
