@@ -1,6 +1,6 @@
 import numpy as np
 import gym
-import gym_customized
+#import gym_customized
 import os, sys
 from arguments import get_args
 from mpi4py import MPI
