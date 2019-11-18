@@ -78,6 +78,8 @@ def launch(args):
         torch.cuda.manual_seed(args.seed)
     # get the environment parameters
     env_params = get_env_params(env)
+
+    print('Run training with seed {}'.format(args.seed))
     # create the ddpg agent to interact with the environment
     ddpg_trainer = ddpg_agent(args, env, env_params)
     ddpg_trainer.learn()

@@ -65,6 +65,9 @@ class ddpg_agent:
         self.model_path = os.path.join(self.args.save_dir, self.args.env_name)
         if not os.path.exists(self.model_path):
             os.mkdir(self.model_path)
+        self.model_path = os.path.join(self.model_path, 'seed_' + str(self.args.seed))
+        if not os.path.exists(self.model_path):
+            os.mkdir(self.model_path)
 
     def learn(self):
         """
@@ -77,7 +80,7 @@ class ddpg_agent:
 
         # start to collect samples
         for epoch in range(self.args.n_epochs):
-            for i in range(self.args.n_cycles):
+            for cycle in range(self.args.n_cycles):
                 mb_obs, mb_ag, mb_g, mb_actions = [], [], [], []
                 for j in range(self.args.num_rollouts_per_mpi):
                     # reset the rollouts
@@ -128,27 +131,28 @@ class ddpg_agent:
                 # soft update
                 self._soft_update_target_network(self.actor_target_network, self.actor_network)
                 self._soft_update_target_network(self.critic_target_network, self.critic_network)
-            # start to do the evaluation
-            success_rate = self._eval_agent()
-            success_rate_all.append(success_rate)
-            np.save(self.model_path + '/eval_success_rates.npy', success_rate_all)
 
-            #if MPI.COMM_WORLD.Get_rank() == 0:
-            torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \
-                        self.model_path + '/model_last.pt')
+                # start to do the evaluation
+                success_rate = self._eval_agent()
+                success_rate_all.append(success_rate)
+                np.save(self.model_path + '/eval_success_rates.npy', success_rate_all)
 
-            #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_last.pt')
-
-            if success_rate >= best_success_rate:
-                best_success_rate = success_rate
+                #if MPI.COMM_WORLD.Get_rank() == 0:
                 torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \
-                            self.model_path + '/model_best.pt')
+                            self.model_path + '/model_last.pt')
 
-                #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_best.pt')
+                #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_last.pt')
 
-            print('[{}] epoch: {}, eval success rate: {:.3f}, best success rate: {:.3f}'.format(datetime.now(), epoch, success_rate, best_success_rate))
+                if success_rate >= best_success_rate:
+                    best_success_rate = success_rate
+                    torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \
+                                self.model_path + '/model_best.pt')
 
-            if success_rate > 0.9: break
+                    #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_best.pt')
+
+                print('[{}] epoch: {}, cycle: {}, eval success rate: {:.3f}, best success rate: {:.3f}'.format(datetime.now(), epoch, cycle, success_rate, best_success_rate))
+
+            #if success_rate > 0.9: break
 
 
     # pre_process the inputs

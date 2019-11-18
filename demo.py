@@ -18,11 +18,11 @@ def process_inputs(o, g, o_mean, o_std, g_mean, g_std, args):
 if __name__ == '__main__':
     args = get_args()
     # load the model param
-    model_path = args.save_dir + args.env_name + '/model_best.pt'
+    model_path = args.save_dir + args.env_name + '/seed_' + str(args.seed) + '/model_best.pt'
     o_mean, o_std, g_mean, g_std, actor_model, critic_model = torch.load(model_path, map_location=lambda storage, loc: storage)
     #o_mean, o_std, g_mean, g_std, actor_model = torch.load(model_path, map_location=lambda storage, loc: storage)
     # create the environment
-    env = gym_customized.make(args.env_name)
+    env = gym.make(args.env_name)
     # get the env param
     observation = env.reset()
     # get the environment params
