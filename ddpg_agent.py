@@ -2,9 +2,9 @@ import torch
 import os
 from datetime import datetime
 import numpy as np
-from mpi4py import MPI
+# from mpi4py import MPI
 from models import actor, critic
-from MPI_utils import sync_networks, sync_grads
+# from MPI_utils import sync_networks, sync_grads
 from replay_buffer import replay_buffer
 from normalizer import normalizer
 from her import her_sampler
@@ -82,7 +82,7 @@ class ddpg_agent:
         for epoch in range(self.args.n_epochs):
             for cycle in range(self.args.n_cycles):
                 mb_obs, mb_ag, mb_g, mb_actions = [], [], [], []
-                for j in range(self.args.num_rollouts_per_mpi):
+                for j in range(self.args.num_rollouts_per_cycle):
                     # reset the rollouts
                     ep_obs, ep_ag, ep_g, ep_actions = [], [], [], []
                     # reset the environment
@@ -132,25 +132,26 @@ class ddpg_agent:
                 self._soft_update_target_network(self.actor_target_network, self.actor_network)
                 self._soft_update_target_network(self.critic_target_network, self.critic_network)
 
-                # start to do the evaluation
-                success_rate = self._eval_agent()
-                success_rate_all.append(success_rate)
-                np.save(self.model_path + '/eval_success_rates.npy', success_rate_all)
+            # start to do the evaluation
+            success_rate = self._eval_agent()
+            success_rate_all.append(success_rate)
+            np.save(self.model_path + '/eval_success_rates.npy', success_rate_all)
 
-                #if MPI.COMM_WORLD.Get_rank() == 0:
+            #if MPI.COMM_WORLD.Get_rank() == 0:
+            # torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \
+            #             self.model_path + '/model_last.pt')
+
+            #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_last.pt')
+
+            if success_rate >= best_success_rate:
+                best_success_rate = success_rate
                 torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \
-                            self.model_path + '/model_last.pt')
+                            self.model_path + '/model_best.pt')
 
-                #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_last.pt')
+                #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_best.pt')
 
-                if success_rate >= best_success_rate:
-                    best_success_rate = success_rate
-                    torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \
-                                self.model_path + '/model_best.pt')
-
-                    #torch.save(self.critic_network.state_dict(), self.model_path + '/model_critic_best.pt')
-
-                print('[{}] epoch: {}, cycle: {}, eval success rate: {:.3f}, best success rate: {:.3f}'.format(datetime.now(), epoch, cycle, success_rate, best_success_rate))
+            #print('[{}] epoch: {}, cycle: {}, eval success rate: {:.3f}, best success rate: {:.3f}'.format(datetime.now(), epoch, cycle, success_rate, best_success_rate))
+            print('[{}] epoch: {}, eval success rate: {:.3f}, best success rate: {:.3f}'.format(datetime.now(), epoch, success_rate, best_success_rate))
 
             #if success_rate > 0.9: break
 

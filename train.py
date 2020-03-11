@@ -11,34 +11,6 @@ import torch
 
 from gym.envs.registration import register
 
-register(
-    id='FetchReach-dense-v1',
-    entry_point='gym.envs.robotics:FetchReachEnv',
-    kwargs={'reward_type': 'dense'},
-    max_episode_steps=50,
-)
-
-register(
-    id='HandReach-dense-v0',
-    entry_point='gym.envs.robotics:HandReachEnv',
-    kwargs={'reward_type': 'dense'},
-    max_episode_steps=50,
-)
-
-register(
-    id='HandManipulateBlockRotateXYZ-dense-v0',
-    entry_point='gym.envs.robotics:HandBlockEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz', 'reward_type': 'dense'},
-    max_episode_steps=100,
-)
-
-register(
-    id='HandManipulateEggRotate-dense-v0',
-    entry_point='gym.envs.robotics:HandEggEnv',
-    kwargs={'target_position': 'ignore', 'target_rotation': 'xyz', 'reward_type': 'dense'},
-    max_episode_steps=100,
-)
-
 """
 train the agent, the MPI part code is copy from openai baselines(https://github.com/openai/baselines/blob/master/baselines/her)
 

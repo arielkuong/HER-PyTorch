@@ -14,21 +14,12 @@ class her_sampler:
         T = episode_batch['actions'].shape[1]
         rollout_batch_size = episode_batch['actions'].shape[0]
         batch_size = batch_size_in_transitions
-        #print('HER: shape of episode batch ag: {}'.format(episode_batch['ag'].shape))
-        #print('HER: Episode length is {}'.format(T))
-        #print('HER: Total rollout size is {}'.format(rollout_batch_size))
 
         # select which rollouts and which timesteps to be used
         episode_idxs = np.random.randint(0, rollout_batch_size, batch_size)
         t_samples = np.random.randint(T, size=batch_size)
         transitions = {key: episode_batch[key][episode_idxs, t_samples].copy()
                         for key in episode_batch.keys()}
-        #print('HER: Episode index for sample transition: {}'.format(episode_idxs))
-        #print('HER: timestep index for sample transition: {}'.format(t_samples))
-
-        #print('HER: shape of original transition obs: {}'.format(transitions['obs'].shape))
-        #print('HER: shape of original transition ag: {}'.format(transitions['ag'].shape))
-        #print('HER: shape of original transition g: {}'.format(transitions['ag'].shape))
 
         # Select future time indexes proportional with probability future_p. These
         # will be used for HER replay by substituting in future goals.
@@ -36,37 +27,18 @@ class her_sampler:
         future_offset = np.random.uniform(size=batch_size) * (T - t_samples)
         future_offset = future_offset.astype(int)
         future_t = (t_samples + 1 + future_offset)[her_indexes]
-        #print('HER: her replacement index: {}'.format(her_indexes))
-        #print('HER: future offset: {}'.format(future_offset))
-        #print('HER: future timesteps selected for her indexes: {}'.format(future_t))
 
         # Replace goal with achieved goal but only for the previous selected Here
         # transitions (defined by her_indexes). Keep original goal for the other
         # transitions.
-
-        #print('HER: original g for transitions: {}'.format(transitions['g']))
-        #print('HER: original ag_next for transitions: {}'.format(transitions['ag_next']))
-        #original_rewards = np.expand_dims(self.reward_func(transitions['ag_next'], transitions['g'], None), 1)
-        #print('HER: original rewards for the transitions: {}'.format(original_rewards))
-        #print('HER: ag for pointed future timesteps: {}'. format(episode_batch['ag'][episode_idxs[her_indexes], future_t]))
-
         future_ag = episode_batch['ag'][episode_idxs[her_indexes], future_t]
         transitions['g'][her_indexes] = future_ag
 
         # Re-compute reward since we may have substituted the goal.
         transitions['r'] = np.expand_dims(self.reward_func(transitions['ag_next'], transitions['g'], None), 1)
 
-        #print('HER: reconstruct g for transitions: {}'.format(transitions['g']))
-        #print('HER: reconstruct ag_next for transitions(should be same as before): {}'.format(transitions['ag_next']))
-        #print('HER: reconstruct reward for the transitions: {}'.format(transitions['r']))
-
         transitions = {k: transitions[k].reshape(batch_size, *transitions[k].shape[1:])
                         for k in transitions.keys()}
-
-        #print('HER: shape of new transition obs: {}'.format(transitions['obs'].shape))
-        #print('HER: shape of new transition ag: {}'.format(transitions['ag'].shape))
-        #print('HER: shape of new transition g: {}'.format(transitions['ag'].shape))
-        #print('HER: shape of new transition rewards: {}'.format(transitions['r'].shape))
 
         #val = input('Pause...')
         return transitions

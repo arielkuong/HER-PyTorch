@@ -19,8 +19,6 @@ class replay_buffer:
                         'ag': np.empty([self.size_in_rollouts, self.T + 1, self.env_params['goal']]),
                         'g': np.empty([self.size_in_rollouts, self.T, self.env_params['goal']]),
                         'actions': np.empty([self.size_in_rollouts, self.T, self.env_params['action']]),
-                        #'ep_num': np.empty([self.size_in_rollouts, self.T, 1]),
-                        #'frame_num': np.empty([self.size_in_rollouts, self.T, 1]),
                         }
         # thread lock
         self.lock = threading.Lock()
@@ -29,7 +27,6 @@ class replay_buffer:
     def store_episode(self, episode_batch):
         mb_obs, mb_ag, mb_g, mb_actions = episode_batch
         batch_size = mb_obs.shape[0]
-        #print('Save {} rollouts (episodes) into the replay buffer'.format(batch_size))
         with self.lock:
             idxs = self._get_storage_idx(inc=batch_size)
             # store the informations
@@ -47,17 +44,8 @@ class replay_buffer:
             for key in self.buffers.keys():
                 temp_buffers[key] = self.buffers[key][:self.current_size_in_rollouts]
 
-        #print('Current replay buffer observation size: {}'.format(temp_buffers['obs'].shape))
-        #print('Current replay buffer achieved goal size: {}'.format(temp_buffers['ag'].shape))
-        #print('Current replay buffer goal size: {}'.format(temp_buffers['g'].shape))
-        #print('Current replay buffer actions size: {}'.format(temp_buffers['actions'].shape))
-
         temp_buffers['obs_next'] = temp_buffers['obs'][:, 1:, :]
         temp_buffers['ag_next'] = temp_buffers['ag'][:, 1:, :]
-
-        #print('Current replay buffer next achieved goal size: {}'.format(temp_buffers['ag_next'].shape))
-        #print('Current replay buffer next observation size: {}'.format(temp_buffers['obs_next'].shape))
-
 
         # sample transitions
         transitions = self.sample_func(temp_buffers, batch_size)
