@@ -1,11 +1,13 @@
 import numpy as np
 import gym
-#import gym_customized
+import gym_customized
 import os, sys
 from arguments import get_args
 from mpi4py import MPI
 from subprocess import CalledProcessError
 from ddpg_agent import ddpg_agent
+# from ddpg_agent_wo_norm import ddpg_agent
+# from ddpg_agent_wo_norm_record import ddpg_agent
 import random
 import torch
 
@@ -34,8 +36,8 @@ def get_env_params(env):
 
 def launch(args):
     # create the ddpg_agent
-    #env = gym.make(args.env_name)
     env = gym.make(args.env_name)
+    # env = gym_customized.make(args.env_name)
     # set random seeds for reproduce
     #env.seed(args.seed + MPI.COMM_WORLD.Get_rank())
     env.seed(args.seed)

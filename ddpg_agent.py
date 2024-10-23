@@ -135,7 +135,7 @@ class ddpg_agent:
             # start to do the evaluation
             success_rate = self._eval_agent()
             success_rate_all.append(success_rate)
-            np.save(self.model_path + '/eval_success_rates.npy', success_rate_all)
+            np.save(self.model_path + '/eval_success_rates_her.npy', success_rate_all)
 
             #if MPI.COMM_WORLD.Get_rank() == 0:
             # torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict(), self.critic_network.state_dict()], \

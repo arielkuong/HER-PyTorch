@@ -4,16 +4,16 @@ import matplotlib as mpl
 from arguments import get_args
 import os
 
-seed = [155, 831, 468, 531, 172]
+seed = [123, 679, 274, 835, 516]
 
 if __name__ == "__main__":
 
     args = get_args()
-    eval_file_path_1 = args.save_dir + args.env + '/seed_' + str(seed[0]) + '/eval_success_rates.npy'
-    eval_file_path_2 = args.save_dir + args.env + '/seed_' + str(seed[1]) + '/eval_success_rates.npy'
-    eval_file_path_3 = args.save_dir + args.env + '/seed_' + str(seed[2]) + '/eval_success_rates.npy'
-    eval_file_path_4 = args.save_dir + args.env + '/seed_' + str(seed[3]) + '/eval_success_rates.npy'
-    eval_file_path_5 = args.save_dir + args.env + '/seed_' + str(seed[4]) + '/eval_success_rates.npy'
+    eval_file_path_1 = args.save_dir + args.env_name + '/seed_' + str(seed[0]) + '/eval_success_rates.npy'
+    eval_file_path_2 = args.save_dir + args.env_name + '/seed_' + str(seed[1]) + '/eval_success_rates.npy'
+    eval_file_path_3 = args.save_dir + args.env_name + '/seed_' + str(seed[2]) + '/eval_success_rates.npy'
+    eval_file_path_4 = args.save_dir + args.env_name + '/seed_' + str(seed[3]) + '/eval_success_rates.npy'
+    eval_file_path_5 = args.save_dir + args.env_name + '/seed_' + str(seed[4]) + '/eval_success_rates.npy'
 
     if not os.path.isfile(eval_file_path_1) \
     or not os.path.isfile(eval_file_path_2) \
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     or not os.path.isfile(eval_file_path_5):
         print("Result file do not exist!")
     else:
-        data_len = 140
+        data_len = 50
         data1 = np.load(eval_file_path_1)[:data_len]
         data2 = np.load(eval_file_path_2)[:data_len]
         data3 = np.load(eval_file_path_3)[:data_len]
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         data_low = data_mean - data_std
         data_high = data_mean + data_std
 
-        save_data_path = args.save_dir + args.env + '/Average_result'
+        save_data_path = args.save_dir + args.env_name + '/Average_result_' + str(len(seed)) + 'seeds'
 
         if not os.path.exists(save_data_path):
             os.mkdir(save_data_path)
@@ -51,11 +51,11 @@ if __name__ == "__main__":
         mpl.style.use('ggplot')
         fig = plt.figure(1)
         fig.patch.set_facecolor('white')
-        plt.xlabel('Cycles(50 episodes/cycle)', fontsize=16)
+        plt.xlabel('Epochs', fontsize=16)
         plt.ylabel('Test Success Rate', fontsize=16)
-        plt.title(args.env, fontsize=20)
+        plt.title(args.env_name, fontsize=20)
 
-        plt.plot(x, data_mean, color='blue', linewidth=2, label='HER+HGG')
+        plt.plot(x, data_mean, color='blue', linewidth=2, label='HER')
         plt.fill_between(x, data_low, data_high, color='blue', alpha=0.1)
         plt.legend(loc='lower right')
 
